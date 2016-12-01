@@ -10,6 +10,7 @@
 #include <string>
 #include <vector>
 #include "move.hpp"
+#include "piece_entry.h"
 
 const int WHITE_KINGSIDE = 0;   // represent index of castling kingside white
 const int WHITE_QUEENSIDE = 1;  // represent index of castling queenside white
@@ -25,6 +26,11 @@ private:
      * For storing previous positions
      */
     std::vector<Board*> history;
+
+    /*
+     * Maintain a list of pieces and their locations on the board
+     */
+    std::vector<PieceEntry*> pieceList;
 
     /*
      * Game position is represented as an array of 128 ints

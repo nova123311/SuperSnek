@@ -25,14 +25,13 @@ void Board::genMoves(std::vector<Move>& list, bool castle) {
             &Board::genKnight, &Board::genBishop, &Board::genRook, 
             &Board::genQueen, &Board::genKing};
 
-    // iterate through each real square
-    for (int row = 0; row < 8; ++row) 
-        for (int column = 0; column < 8; ++column) {
-            int piece = position[row * 0x10 + column];
-    
-            if ((whiteToMove && piece > 0) || (!whiteToMove && piece < 0)) {
-            }
+    // iterate through the piece list
+    for (size_t i = 0; i < pieceList.size(); ++i) {
+        if ((whiteToMove && pieceList[i]->piece > 0) ||
+                (!whiteToMove && pieceList[i]->piece < 0)) {
+            (this->*genPiece[pieceList[i]->piece - 1])(list, pieceList[i]->index);
         }
+    }
 }
 
 /*
