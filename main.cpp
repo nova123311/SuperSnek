@@ -64,7 +64,7 @@ u64 perft(Board* b, int depth) {
         b->makeMove(list[i]);
         b->print();
         nodes += perft(b, depth - 1);
-        b->undoMove(list[i]);
+        b->undoMove();
     }
     
     return nodes;

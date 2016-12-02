@@ -77,9 +77,19 @@ private:
 public:
     
     /*
-     * Constructor that takes fen string
+     * Constructor
      */
     Board(std::string fen);
+
+    /*
+     * Copy constructor
+     */
+    Board(const Board& other);
+
+    /*
+     * Assignment operator overload
+     */
+    void operator=(const Board& other);
 
     /*
      * Generate all pseudolegal moves for side to move
@@ -90,7 +100,7 @@ public:
      * Make and undo moves
      */
     bool makeMove(Move& m);
-    void undoMove(Move& m);
+    void undoMove();
 
     /*
      * Print a representation of the board to the console

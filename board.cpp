@@ -13,6 +13,45 @@
  */
 Board::Board(std::string fen) {
     setPosition(fen);
+
+    // piece list
+    for (int row = 0; row < 8; ++row) 
+        for (int column = 0; column < 8; ++column) {
+            int piece = position[row * 16 + column];
+            if (piece != 0) {
+                PieceEntry* entry;
+                entry->piece = piece;
+                entry->index = row * 16 + column;
+                pieceList.push_back(entry);
+            }
+        }
+}
+
+/*
+ * Copy constructor
+ */
+Board::Board(const Board& other) {
+    *this = other;
+}
+
+/*
+ * Assignment operator
+ */
+void Board::operator=(const Board& other) {
+
+    // set data members of board class
+    for (size_t i = 0; i < other.history.size(); ++i)
+        history.push_back(other.history[i]);
+    for (size_t i = 0; i < other.pieceList.size(); ++i)
+        pieceList.push_back(other.pieceList[i]);
+    for (int i = 0; i < 128; ++i)
+        position[i] = other.position[i];
+    whiteToMove = other.whiteToMove;
+    for (int i = 0; i < 4; ++i)
+        castle[i] = other.castle[i];
+    enpassant = other.enpassant;
+    halfmove = other.halfmove;
+    fullmove = other.fullmove;
 }
 
 /*
@@ -32,32 +71,24 @@ void Board::genMoves(std::vector<Move>& list, bool castle) {
             (this->*genPiece[pieceList[i]->piece - 1])(list, pieceList[i]->index);
         }
     }
+
+    // castling
+    if (whiteToMove && position[0x4] == 6)
+        genCastle(list, 0x4);
+    else if (!whiteToMove && position[0x74] == -6)
+        genCastle(list, 0x74);
 }
 
 /*
  * Make a move
  */
 bool Board::makeMove(Move& m) {
-    
-    // make the move
-    position[m.getTarget()] = position[m.getOrigin()];
-    position[m.getOrigin()] = 0;
-
-    // switch colors
-    whiteToMove = !whiteToMove;
-
-    return true;
 }
 
 /*
  * Undo a move
  */
-void Board::undoMove(Move& m) {
-
-    // move back to prior position
-    position[m.getOrigin()] = position[m.getTarget()];   
-    position[m.getTarget()] = position[m.getCapture()];
-    whiteToMove = !whiteToMove;
+void Board::undoMove() {
 }
 
 /*
