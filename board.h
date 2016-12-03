@@ -22,6 +22,11 @@ class Board {
 private:
 
     /*
+     * Piece list maintains locations of the pieces on the board
+     */
+    std::vector<int> pieceList;
+
+    /*
      * Game position is represented as an array of 128 ints
      */
     int position[128];
@@ -56,7 +61,6 @@ private:
     void genRook(std::vector<Move>& list, int origin);
     void genQueen(std::vector<Move>& list, int origin);
     void genKing(std::vector<Move>& list, int origin);
-    void genCastle(std::vector<Move>& list, int origin);
 
 public:
     

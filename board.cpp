@@ -17,8 +17,8 @@ Board::Board(std::string fen) {
     // piece list
     for (int row = 0; row < 8; ++row) 
         for (int column = 0; column < 8; ++column) {
-            int piece = position[row * 16 + column];
-            if (piece != 0) {
+            if (position[row * 16 + column] != 0) {
+                pieceList.push_back(row * 16 + column);
             }
         }
 }
@@ -34,21 +34,12 @@ void Board::genMoves(std::vector<Move>& list, bool castle) {
             &Board::genQueen, &Board::genKing};
 
     // iterate through the piece list
-    /*
     for (size_t i = 0; i < pieceList.size(); ++i) {
-        if ((whiteToMove && pieceList[i]->piece > 0) ||
-                (!whiteToMove && pieceList[i]->piece < 0)) {
-            std::cout << abs(pieceList[i]->piece) << std::endl;
-            (this->*genPiece[abs(pieceList[i]->piece) - 1])(list, pieceList[i]->index);
+        int piece = position[pieceList[i]];
+        if ((whiteToMove && piece > 0) || (!whiteToMove && piece < 0)) {
+            (this->*genPiece[abs(piece) - 1])(list, pieceList[i]);
         }
     }
-    */
-
-    // castling
-    if (whiteToMove && position[0x4] == 6)
-        genCastle(list, 0x4);
-    else if (!whiteToMove && position[0x74] == -6)
-        genCastle(list, 0x74);
 }
 
 /*
@@ -165,7 +156,7 @@ void Board::genSlidingPiece(std::vector<Move>& list, int origin,
 
         // add move only if target square is on board and empty
         while (!(target & 0x88) && position[target] == 0)  {
-            Move m(origin, target, position[target], QUIET_MOVE);
+            Move m(origin, target, QUIET_MOVE);
             list.push_back(m);
 
             // update target
@@ -175,7 +166,7 @@ void Board::genSlidingPiece(std::vector<Move>& list, int origin,
         // stop sliding once a piece is encountered
         if (!(target & 0x88) && 
                 (position[origin] ^ position[target]) < 0) {
-            Move m(origin, target, position[target], CAPTURE);
+            Move m(origin, target, CAPTURE);
             list.push_back(m);
         }
     }
@@ -194,11 +185,11 @@ void Board::genNonSlidingPiece(std::vector<Move>& list, int origin,
         // add move only if target square is on board and valid move
         if (!(target & 0x88)) {
             if (position[target] == 0) {
-                Move m(origin, target, position[target], QUIET_MOVE);
+                Move m(origin, target, QUIET_MOVE);
                 list.push_back(m);
             }
             else if ((position[origin] ^ position[target]) < 0) {
-                Move m(origin, target, position[target], CAPTURE);
+                Move m(origin, target, CAPTURE);
                 list.push_back(m);
             }
         }
@@ -222,11 +213,11 @@ void Board::genPawn(std::vector<Move>& list, int origin) {
         if ((target >= 0x70 && target <= 0x77) || 
                 (target >= 0x0 && target <= 0x7)) 
             for (int i = 8; i <= 11; ++i) {
-                Move m(origin, target, position[target], i);
+                Move m(origin, target, i);
                 list.push_back(m);
             }
         else {
-            Move m(origin, target, position[target], QUIET_MOVE);
+            Move m(origin, target, QUIET_MOVE);
             list.push_back(m);
         }
 
@@ -234,7 +225,7 @@ void Board::genPawn(std::vector<Move>& list, int origin) {
         target += (modifier * pawnOffset[0]);
         if (!(target & 0x88) && ((origin >= 0x10 && origin <= 0x17) ||
                 (origin >= 0x60 && origin <= 0x67)) && position[target] == 0) {
-            Move m(origin, target, position[target], DOUBLE_PAWN_PUSH);
+            Move m(origin, target, DOUBLE_PAWN_PUSH);
             list.push_back(m);
         }
     }
@@ -249,18 +240,18 @@ void Board::genPawn(std::vector<Move>& list, int origin) {
             if ((target >= 0x70 && target <= 0x77) || 
                     (target >= 0x0 && target <= 0x7))
                 for (int i = 12; i <= 15; ++i) {
-                    Move m(origin, target, position[target], i);
+                    Move m(origin, target, i);
                     list.push_back(m);
                 }
             else {
-                Move m(origin, target, position[target], CAPTURE);
+                Move m(origin, target, CAPTURE);
                 list.push_back(m);
             }
         }
 
         // enpassant
         if ((enpassant == target) && (position[target] == 0)) {
-            Move m(origin, target, position[target], EP_CAPTURE);
+            Move m(origin, target, EP_CAPTURE);
             list.push_back(m);
         }
     }
@@ -305,40 +296,3 @@ std::vector<int> kingOffset{0xf, 0x10, 0x11, 0x1, -0xf, -0x10, -0x11, -0x1};
 void Board::genKing(std::vector<Move>& list, int origin) {
     genNonSlidingPiece(list, origin, kingOffset);
 }
-
-/*
- * Generate castling moves
- */
-void Board::genCastle(std::vector<Move>& list, int origin) {
-
-    /*
-    // ensure that king is not in check
-    if (isAttacked(origin))
-        return;
-
-    // kingisde
-    if ((whiteToMove && castle[WHITE_KINGSIDE]) || 
-            (!whiteToMove && castle[BLACK_KINGSIDE])) {
-
-        // squares between rook and king are empty and not attacked
-        if (position[origin + 0x1] == 0 && position[origin + 0x2] == 0 &&
-                !isAttacked(origin + 0x1) && !isAttacked(origin + 0x2)) {
-            Move m(origin, origin + 0x2, 0, KING_CASTLE);
-            list.push_back(m);
-        }
-    }   
-    
-    // queenside
-    if ((whiteToMove && castle[WHITE_QUEENSIDE]) || 
-            (!whiteToMove && castle[BLACK_QUEENSIDE])) {
-
-        // squares between rook and king are empty and not attacked
-        if (position[origin - 0x1] == 0 && position[origin - 0x2] == 0 &&
-                !isAttacked(origin - 0x1) && !isAttacked(origin - 0x2)) {
-            Move m(origin, origin - 0x2, 0, QUEEN_CASTLE);
-            list.push_back(m);
-        }
-    }
-    */
-}
-

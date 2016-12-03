@@ -7,6 +7,8 @@
 #ifndef MOVE_HPP
 #define MOVE_HPP
 
+#include <cstdint>
+
 // constants for flags
 const int QUIET_MOVE = 0;
 const int DOUBLE_PAWN_PUSH = 1;
@@ -27,56 +29,44 @@ class Move {
 private:
 
     /* 
-     * Moves are internally represented as 32 bit int with each 
-     * flag (origin, target, captured piece, move flag) represented as
-     * some bits.
+     * Moves are internally represented as 16 bit variable
+     * with format (origin, target, flag)
      */
-    unsigned move;
+    uint16_t move;
 
 public:
 
     /* 
-     * Construct move object with specified flags
-     * Max sizes
-     *      origin = 127 (7 bits)
-     *      target = 127 (7 bits)
-     *      capture = 15 (1 bit for sign 3 bit for piece)
-     *      flag = 2^14-1 (14 bits)
+     * Construct move object with specified origin, target, and flag
      */
-    Move(unsigned origin, unsigned target, int capture, unsigned flag) {
+    Move(unsigned origin, unsigned target, unsigned flag) {
         move = 0;
-        move |= (origin << 25) | (target << 18) | ((capture & 0xF) << 14) | flag;
+        origin = (origin + (origin & 7)) >> 1; 
+        target = (target + (target & 7)) >> 1;
+        move |= (origin << 10) | (target << 4) | flag;
     }
 
     /*
      * Get origin square
      */
     unsigned getOrigin() {
-        return (move & 0xFE000000) >> 25;
+        unsigned origin = (move & 0xFC00) >> 10;
+        return origin + (origin & ~7);
     }
 
     /*
      * Get target square
      */
     unsigned getTarget() {
-        return (move & 0x1FC0000) >> 18;
-    }
-
-    /*
-     * Get captured piece
-     */
-    int getCapture() {
-        int capturedPiece = (move & 0x3C000) >> 14;
-        if ((capturedPiece & 0x8) == 0x8)
-            capturedPiece |= 0xFFFFFFF0;
-        return capturedPiece < 0 ? -(~capturedPiece + 1) : capturedPiece;
+        unsigned target = (move & 0x3F0) >> 4;
+        return target + (target & ~7);
     }
 
     /*
      * Get flag
      */
     unsigned getFlag() {
-        return move & 0x3FFF;
+        return move & 0xF;
     }
 
     /*
