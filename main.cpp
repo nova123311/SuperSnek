@@ -20,7 +20,10 @@ int main() {
 
     // set board to initial position
     Board b("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+
+    /*
     std::cout << perft(&b, 1) << std::endl;
+    */
 
     /*
     // get moves
@@ -52,6 +55,7 @@ int main() {
     return 0;
 }
 
+/*
 u64 perft(Board* b, int depth) {
     u64 nodes = 0;
 
@@ -62,10 +66,10 @@ u64 perft(Board* b, int depth) {
     b->genMoves(list, true);
     for (size_t i = 0; i < list.size(); ++i) {
         b->makeMove(list[i]);
-        b->print();
         nodes += perft(b, depth - 1);
         b->undoMove();
     }
     
     return nodes;
 }
+*/

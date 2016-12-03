@@ -19,39 +19,8 @@ Board::Board(std::string fen) {
         for (int column = 0; column < 8; ++column) {
             int piece = position[row * 16 + column];
             if (piece != 0) {
-                PieceEntry* entry;
-                entry->piece = piece;
-                entry->index = row * 16 + column;
-                pieceList.push_back(entry);
             }
         }
-}
-
-/*
- * Copy constructor
- */
-Board::Board(const Board& other) {
-    *this = other;
-}
-
-/*
- * Assignment operator
- */
-void Board::operator=(const Board& other) {
-
-    // set data members of board class
-    for (size_t i = 0; i < other.history.size(); ++i)
-        history.push_back(other.history[i]);
-    for (size_t i = 0; i < other.pieceList.size(); ++i)
-        pieceList.push_back(other.pieceList[i]);
-    for (int i = 0; i < 128; ++i)
-        position[i] = other.position[i];
-    whiteToMove = other.whiteToMove;
-    for (int i = 0; i < 4; ++i)
-        castle[i] = other.castle[i];
-    enpassant = other.enpassant;
-    halfmove = other.halfmove;
-    fullmove = other.fullmove;
 }
 
 /*
@@ -65,30 +34,21 @@ void Board::genMoves(std::vector<Move>& list, bool castle) {
             &Board::genQueen, &Board::genKing};
 
     // iterate through the piece list
+    /*
     for (size_t i = 0; i < pieceList.size(); ++i) {
         if ((whiteToMove && pieceList[i]->piece > 0) ||
                 (!whiteToMove && pieceList[i]->piece < 0)) {
-            (this->*genPiece[pieceList[i]->piece - 1])(list, pieceList[i]->index);
+            std::cout << abs(pieceList[i]->piece) << std::endl;
+            (this->*genPiece[abs(pieceList[i]->piece) - 1])(list, pieceList[i]->index);
         }
     }
+    */
 
     // castling
     if (whiteToMove && position[0x4] == 6)
         genCastle(list, 0x4);
     else if (!whiteToMove && position[0x74] == -6)
         genCastle(list, 0x74);
-}
-
-/*
- * Make a move
- */
-bool Board::makeMove(Move& m) {
-}
-
-/*
- * Undo a move
- */
-void Board::undoMove() {
 }
 
 /*
@@ -351,6 +311,7 @@ void Board::genKing(std::vector<Move>& list, int origin) {
  */
 void Board::genCastle(std::vector<Move>& list, int origin) {
 
+    /*
     // ensure that king is not in check
     if (isAttacked(origin))
         return;
@@ -378,23 +339,6 @@ void Board::genCastle(std::vector<Move>& list, int origin) {
             list.push_back(m);
         }
     }
+    */
 }
 
-/*
- * Is the square being attacked?
- */
-bool Board::isAttacked(int square) {
-    std::vector<Move> moveList;
-
-    // temporarily switch sides
-    whiteToMove = !whiteToMove;
-    genMoves(moveList, false);
-    whiteToMove = !whiteToMove;
-
-    // check if move is in list
-    for (size_t i = 0; i < moveList.size(); ++i) {
-        if (moveList[i].isCapture() && (int)moveList[i].getTarget() == square) 
-            return true;
-    }
-    return false;
-}
