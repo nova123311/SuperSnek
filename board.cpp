@@ -16,11 +16,29 @@ Board::Board(std::string fen) {
 
     // piece list
     for (int row = 0; row < 8; ++row) 
-        for (int column = 0; column < 8; ++column) {
-            if (position[row * 16 + column] != 0) {
+        for (int column = 0; column < 8; ++column) 
+            if (position[row * 16 + column] != 0) 
                 pieceList.push_back(row * 16 + column);
-            }
-        }
+}
+
+/*
+ * Copy constructor
+ */
+Board::Board(const Board& other) {
+     
+    // assign data of other to this board structure
+    for (size_t i = 0; i < other.history.size(); ++i)
+        history.push_back(other.history[i]);
+    for (size_t i = 0; i < other.pieceList.size(); ++i)
+        pieceList.push_back(other.pieceList[i]);
+    for (int i = 0; i < 128; ++i)
+        position[i] = other.position[i];
+    whiteToMove = other.whiteToMove;
+    for (int i = 0; i < 4; ++i)
+        castle[i] = other.castle[i];
+    enpassant = other.enpassant;
+    halfmove = other.halfmove;
+    fullmove = other.fullmove;
 }
 
 /*
@@ -36,10 +54,61 @@ void Board::genMoves(std::vector<Move>& list, bool castle) {
     // iterate through the piece list
     for (size_t i = 0; i < pieceList.size(); ++i) {
         int piece = position[pieceList[i]];
-        if ((whiteToMove && piece > 0) || (!whiteToMove && piece < 0)) {
+        if ((whiteToMove && piece > 0) || (!whiteToMove && piece < 0)) 
             (this->*genPiece[abs(piece) - 1])(list, pieceList[i]);
-        }
     }
+}
+
+/*
+ * Make a move on the board
+ */
+bool Board::makeMove(Move& m) {
+
+    // add current board to history
+    Board* b = new Board(*this);
+    history.push_back(b);
+
+    // make the move
+    position[m.getTarget()] = position[m.getOrigin()];
+    position[m.getOrigin()] = 0;
+
+    // check if king is in check
+
+    // change game state as necessary
+    whiteToMove = !whiteToMove; 
+
+    // update piece list
+    pieceList.clear();
+    for (int row = 0; row < 8; ++row) 
+        for (int column = 0; column < 8; ++column)
+            if (position[row * 16 + column] != 0)
+                pieceList.push_back(row * 16 + column);
+    return true;
+}
+
+/*
+ * Revert the board to previous position in history
+ */
+void Board::undoMove() {
+     
+    // assign data of other to this board structure
+    Board* other = history.back();
+    for (size_t i = 0; i < other->history.size(); ++i)
+        history[i] = other->history[i];
+    for (size_t i = 0; i < other->pieceList.size(); ++i)
+        pieceList[i] = other->pieceList[i];
+    for (int i = 0; i < 128; ++i)
+        position[i] = other->position[i];
+    whiteToMove = other->whiteToMove;
+    for (int i = 0; i < 4; ++i)
+        castle[i] = other->castle[i];
+    enpassant = other->enpassant;
+    halfmove = other->halfmove;
+    fullmove = other->fullmove;
+    history.pop_back();
+
+    //delete other
+    delete other;
 }
 
 /*

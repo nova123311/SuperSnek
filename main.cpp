@@ -21,41 +21,11 @@ int main() {
     // set board to initial position
     Board b("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
 
-    /*
-    std::cout << perft(&b, 1) << std::endl;
-    */
-
-    /*
-    // get moves
-    std::vector<Move> list;
-    b.genMoves(list, true);
-    for (size_t i = 0; i < list.size(); ++i) {
-        std::cout << std::hex << list[i].getTarget() << std::endl;
-    }
-    */
-
-    /* 
-    // take user moves
-    while (true) {
-        std::string move;
-
-        // prompt for move
-        std::cout << "Enter move: ";
-        std::cin >> move;
-        Move m = processMove(move);
-        
-        // end program
-        if (!std::cin) {
-            std::cout << "\nThanks for being super sneky :^)" << std::endl;
-            break;
-        }
-    }
-    */
-
+    // perft tests
+    std::cout << perft(&b, 4) << std::endl;
     return 0;
 }
 
-/*
 u64 perft(Board* b, int depth) {
     u64 nodes = 0;
 
@@ -72,4 +42,3 @@ u64 perft(Board* b, int depth) {
     
     return nodes;
 }
-*/

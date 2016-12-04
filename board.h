@@ -22,6 +22,11 @@ class Board {
 private:
 
     /*
+     * History of positions prior to current
+     */
+    std::vector<Board*> history;
+
+    /*
      * Piece list maintains locations of the pieces on the board
      */
     std::vector<int> pieceList;
@@ -70,9 +75,25 @@ public:
     Board(std::string fen);
 
     /*
+     * Copy contstructor
+     */
+    Board(const Board& other);
+
+    /*
+     * Assignment operator
+     */
+    void operator=(const Board& other);
+
+    /*
      * Generate all pseudolegal moves for side to move
      */
     void genMoves(std::vector<Move>& list, bool castle);
+
+    /*
+     * For making and undoing moves on the board
+     */
+    bool makeMove(Move& m);
+    void undoMove();
 
     /*
      * Print a representation of the board to the console
