@@ -44,7 +44,7 @@ Board::Board(const Board& other) {
 /*
  * Generate pseudolegal moves
  */
-void Board::genMoves(std::vector<Move>& list, bool castle) {
+void Board::genMoves(std::vector<Move>& list) {
 
     // functions to generate pieces
     void (Board::*genPiece[])(std::vector<Move>&, int){&Board::genPawn,
@@ -56,6 +56,10 @@ void Board::genMoves(std::vector<Move>& list, bool castle) {
         int piece = position[pieceList[i]];
         if ((whiteToMove && piece > 0) || (!whiteToMove && piece < 0)) 
             (this->*genPiece[abs(piece) - 1])(list, pieceList[i]);
+
+        // castling
+        if ((whiteToMove && piece == 6) || (!whiteToMove && piece == -6))
+            genCastle(list, pieceList[i]);
     }
 }
 
@@ -88,6 +92,25 @@ bool Board::makeMove(Move& m) {
         else
             enpassant = m.getOrigin() - 0x10;
     }
+    
+    // kingisde castle
+    else if (m.getFlag() == KING_CASTLE) {
+        position[m.getTarget() - 0x1] = position[m.getTarget() + 0x1];
+        position[m.getTarget() + 0x1] = 0;
+    }
+
+    // queen side castle
+    else if (m.getFlag() == QUEEN_CASTLE) {
+        position[m.getTarget() + 0x1] = position[m.getTarget() - 0x2];
+        position[m.getTarget() - 0x2] = 0;
+    }
+
+    // promotions
+    else if (m.getFlag() >= KNIGHT_PROMOTION && 
+            m.getFlag() <= QUEEN_PROMOTION_CAPTURE) {
+        position[m.getTarget()] = position[m.getTarget()] < 0 ? 
+                -(m.getFlag() % 4 + 2) : m.getFlag() % 4 + 2;
+    }
 
     // update piece list
     pieceList.clear();
@@ -107,8 +130,22 @@ bool Board::makeMove(Move& m) {
         }
     }
 
-    // change game state as necessary
+    // change side to move
     whiteToMove = !whiteToMove; 
+
+    // check castling privileges
+    if (position[0x4] != 6)
+        castle[WHITE_KINGSIDE] = castle[WHITE_QUEENSIDE] = false;
+    if (position[0x74] != -6)
+        castle[BLACK_KINGSIDE] = castle[BLACK_QUEENSIDE] = false;
+    if (position[0x0] != 4)
+        castle[WHITE_QUEENSIDE] = false;
+    if (position[0x7] != 4)
+        castle[WHITE_KINGSIDE] = false;
+    if (position[0x70] != -4)
+        castle[BLACK_QUEENSIDE] = false;
+    if (position[0x77] != -4)
+        castle[BLACK_KINGSIDE] = false;
 
     // successful move
     return true;
@@ -319,8 +356,9 @@ void Board::genPawn(std::vector<Move>& list, int origin) {
 
         // double pawn push
         target += (modifier * pawnOffset[0]);
-        if (!(target & 0x88) && ((origin >= 0x10 && origin <= 0x17) ||
-                (origin >= 0x60 && origin <= 0x67)) && position[target] == 0) {
+        if (((whiteToMove && origin >= 0x10 && origin <= 0x17) ||
+                (!whiteToMove && origin >= 0x60 && origin <= 0x67)) 
+                && position[target] == 0) {
             Move m(origin, target, DOUBLE_PAWN_PUSH);
             list.push_back(m);
         }
@@ -394,15 +432,75 @@ void Board::genKing(std::vector<Move>& list, int origin) {
 }
 
 /*
+ * Generate castling moves
+ */
+void Board::genCastle(std::vector<Move>& list, int origin) {
+
+    // check that king is not in check
+    if (isAttacked(origin))
+        return;
+
+    // kingisde castling
+    if (!isAttacked(origin + 0x1) && !isAttacked(origin + 0x2)) {
+        if (position[origin + 0x1] == 0 && position[origin + 0x2] == 0) {
+            if ((whiteToMove && castle[WHITE_KINGSIDE]) ||
+                    (!whiteToMove && castle[BLACK_KINGSIDE])) {
+                Move m(origin, origin + 0x2, KING_CASTLE);
+                list.push_back(m);
+            }
+        }
+    }
+
+    // queenside castling
+    if (!isAttacked(origin - 0x1) && !isAttacked(origin - 0x2)) {
+        if (position[origin - 0x1] == 0 && position[origin - 0x2] == 0 &&
+                position[origin - 0x3] == 0) {
+            if ((whiteToMove && castle[WHITE_QUEENSIDE]) ||
+                    (!whiteToMove && castle[BLACK_QUEENSIDE])) {
+                Move m(origin, origin - 0x2, QUEEN_CASTLE);
+                list.push_back(m);
+            }
+        }
+    }
+}
+
+/*
  * Determine if a square is attacked
  */
 bool Board::isAttacked(int square) {
-    std::vector<Move> moveList;
+ 
+    // functions to generate pieces
+    void (Board::*genPiece[])(std::vector<Move>&, int){&Board::genPawn,
+            &Board::genKnight, &Board::genBishop, &Board::genRook, 
+            &Board::genQueen, &Board::genKing};
+
+    // iterate through the piece list
+    std::vector<Move> list;
     whiteToMove = !whiteToMove;
-    genMoves(moveList, false);
+    for (size_t i = 0; i < pieceList.size(); ++i) {
+        int piece = position[pieceList[i]];
+        if ((whiteToMove && piece > 0) || (!whiteToMove && piece < 0)) {
+            (this->*genPiece[abs(piece) - 1])(list, pieceList[i]);
+        }
+    }
     whiteToMove = !whiteToMove;
-    for (size_t i = 0; i < moveList.size(); ++i) 
-        if (moveList[i].isCapture() && (int)moveList[i].getTarget() == square)
+
+    // check if square attacked
+    for (size_t i = 0; i < pieceList.size(); ++i) {
+        if (whiteToMove && position[pieceList[i]] == -1) {
+            if (pieceList[i] - 0xf == square || pieceList[i] - 0x11 == square)
+                return true;
+        }
+        if (!whiteToMove && position[pieceList[i]] == 1) {
+            if (pieceList[i] + 0xf == square || pieceList[i] + 0x11 == square)
+                return true;
+        }
+    }
+
+    for (size_t i = 0; i < list.size(); ++i) {
+        if (abs(position[list[i].getOrigin()]) != 1 && (int)list[i].getTarget() == square)
             return true;
+    }
+
     return false;
 }

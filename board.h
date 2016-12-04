@@ -66,6 +66,7 @@ private:
     void genRook(std::vector<Move>& list, int origin);
     void genQueen(std::vector<Move>& list, int origin);
     void genKing(std::vector<Move>& list, int origin);
+    void genCastle(std::vector<Move>& list, int origin);
 
     /*
      * Determine if a square is being attacked
@@ -92,7 +93,7 @@ public:
     /*
      * Generate all pseudolegal moves for side to move
      */
-    void genMoves(std::vector<Move>& list, bool castle);
+    void genMoves(std::vector<Move>& list);
 
     /*
      * For making and undoing moves on the board

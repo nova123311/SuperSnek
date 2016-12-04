@@ -68,13 +68,6 @@ public:
     unsigned getFlag() {
         return move & 0xF;
     }
-
-    /*
-     * Is the move a capture?
-     */
-    bool isCapture() {
-        return move & 0x4;
-    }
 };
 
 #endif
