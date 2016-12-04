@@ -35,9 +35,10 @@ u64 perft(Board* b, int depth) {
     std::vector<Move> list;
     b->genMoves(list, true);
     for (size_t i = 0; i < list.size(); ++i) {
-        b->makeMove(list[i]);
-        nodes += perft(b, depth - 1);
-        b->undoMove();
+        if (b->makeMove(list[i])) {
+            nodes += perft(b, depth - 1);
+            b->undoMove();
+        }
     }
     
     return nodes;

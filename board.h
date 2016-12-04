@@ -67,6 +67,11 @@ private:
     void genQueen(std::vector<Move>& list, int origin);
     void genKing(std::vector<Move>& list, int origin);
 
+    /*
+     * Determine if a square is being attacked
+     */
+    bool isAttacked(int square);
+
 public:
     
     /*

@@ -72,17 +72,28 @@ bool Board::makeMove(Move& m) {
     position[m.getTarget()] = position[m.getOrigin()];
     position[m.getOrigin()] = 0;
 
-    // check if king is in check
-
-    // change game state as necessary
-    whiteToMove = !whiteToMove; 
-
     // update piece list
     pieceList.clear();
     for (int row = 0; row < 8; ++row) 
         for (int column = 0; column < 8; ++column)
             if (position[row * 16 + column] != 0)
                 pieceList.push_back(row * 16 + column);
+
+    // check if king is in check
+    for (size_t i = 0; i < pieceList.size(); ++i) {
+        int piece = position[pieceList[i]];
+        if ((whiteToMove && piece == 6) || (!whiteToMove && piece == -6)) {
+            if (isAttacked(pieceList[i])) {
+                undoMove();
+                return false;
+            }
+        }
+    }
+
+    // change game state as necessary
+    whiteToMove = !whiteToMove; 
+
+    // successful move
     return true;
 }
 
@@ -93,10 +104,9 @@ void Board::undoMove() {
      
     // assign data of other to this board structure
     Board* other = history.back();
-    for (size_t i = 0; i < other->history.size(); ++i)
-        history[i] = other->history[i];
+    pieceList.clear();
     for (size_t i = 0; i < other->pieceList.size(); ++i)
-        pieceList[i] = other->pieceList[i];
+        pieceList.push_back(other->pieceList[i]);
     for (int i = 0; i < 128; ++i)
         position[i] = other->position[i];
     whiteToMove = other->whiteToMove;
@@ -364,4 +374,18 @@ void Board::genQueen(std::vector<Move>& list, int origin) {
 std::vector<int> kingOffset{0xf, 0x10, 0x11, 0x1, -0xf, -0x10, -0x11, -0x1};
 void Board::genKing(std::vector<Move>& list, int origin) {
     genNonSlidingPiece(list, origin, kingOffset);
+}
+
+/*
+ * Determine if a square is attacked
+ */
+bool Board::isAttacked(int square) {
+    std::vector<Move> moveList;
+    whiteToMove = !whiteToMove;
+    genMoves(moveList, false);
+    whiteToMove = !whiteToMove;
+    for (size_t i = 0; i < moveList.size(); ++i) 
+        if (moveList[i].isCapture() && (int)moveList[i].getTarget() == square)
+            return true;
+    return false;
 }
