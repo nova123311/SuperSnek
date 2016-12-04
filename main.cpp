@@ -22,7 +22,7 @@ int main() {
     Board b("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
 
     // perft tests
-    std::cout << perft(&b, 4) << std::endl;
+    std::cout << perft(&b, 6) << std::endl;
     return 0;
 }
 

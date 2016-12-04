@@ -68,9 +68,26 @@ bool Board::makeMove(Move& m) {
     Board* b = new Board(*this);
     history.push_back(b);
 
-    // make the move
+    // make move
     position[m.getTarget()] = position[m.getOrigin()];
     position[m.getOrigin()] = 0;
+    enpassant = NO_ENPASSANT;
+
+    // enpassant
+    if (m.getFlag() == EP_CAPTURE) {
+        if (whiteToMove)
+            position[m.getTarget() - 0x10] = 0;
+        else
+            position[m.getTarget() + 0x10] = 0;
+    }
+
+    // double pawn push
+    else if (m.getFlag() == DOUBLE_PAWN_PUSH) {
+        if (whiteToMove)
+            enpassant = m.getOrigin() + 0x10;
+        else
+            enpassant = m.getOrigin() - 0x10;
+    }
 
     // update piece list
     pieceList.clear();
