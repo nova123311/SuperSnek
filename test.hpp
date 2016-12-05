@@ -37,12 +37,12 @@ uint64_t perft(Board* b, int depth) {
  */
 void divide(Board* b, int depth) {
     std::vector<Move> list;
-    b.genMoves(list);
+    b->genMoves(list);
     for (size_t i = 0; i < list.size(); ++i) {
-        if (b.makeMove(list[i])) {
-            std::cout << formatMove(list[i]) << " " << perft(&b, depth - 1) 
+        if (b->makeMove(list[i])) {
+            std::cout << formatMove(list[i]) << " " << perft(b, depth - 1) 
                     << std::endl;
-            b.undoMove();
+            b->undoMove();
         }
     }
 }

@@ -9,21 +9,7 @@
 
 #include "board.h"
 #include "eval.hpp"
-
-std::string formatMove(Move& m) {
-    int columnStart = m.getOrigin() & 7;
-    int columnEnd = m.getTarget() & 7;
-    int rowStart = m.getOrigin() >> 4;
-    int rowEnd = m.getTarget() >> 4;
-
-    std::string suh;
-    suh.push_back('a' + columnStart);
-    suh.push_back('1' + rowStart);
-    suh.push_back('a' + columnEnd);
-    suh.push_back('1' + rowEnd);
-
-    return suh;
-}
+#include "utility.hpp"
 
 Move& search(Board& b) {
     

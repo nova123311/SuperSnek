@@ -10,9 +10,8 @@
 #include "board.h"
 #include "move.hpp"
 #include "search.hpp"
-
-//std::string formatMove(Move& m);
-bool parseMove(Board& b, std::string input);
+#include "utility.hpp"
+#include "test.hpp"
 
 /*
  *
@@ -36,41 +35,3 @@ int main() {
 
     return 0;
 }
-
-bool parseMove(Board& b, std::string input) {
-
-    unsigned origin = (input[0] - 'a') + 16 * (input[1] - '1');
-    unsigned target = (input[2] - 'a') + 16 * (input[3] - '1');
-
-    std::vector<Move> list;
-    b.genMoves(list);
-    for (size_t i = 0; i < list.size(); ++i) {
-        if (origin == list[i].getOrigin() && target == list[i].getTarget()) {
-            if (b.makeMove(list[i]))
-                return true;
-            else {
-                b.undoMove();   
-                return false;
-            }
-        }
-    }
-
-    return false;
-}
-
-/*
-std::string formatMove(Move& m) {
-    int columnStart = m.getOrigin() & 7;
-    int columnEnd = m.getTarget() & 7;
-    int rowStart = m.getOrigin() >> 4;
-    int rowEnd = m.getTarget() >> 4;
-
-    std::string suh;
-    suh.push_back('a' + columnStart);
-    suh.push_back('1' + rowStart);
-    suh.push_back('a' + columnEnd);
-    suh.push_back('1' + rowEnd);
-
-    return suh;
-}
-*/
