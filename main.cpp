@@ -11,8 +11,6 @@
 #include "move.hpp"
 #include "search.hpp"
 
-typedef unsigned long long u64;
-u64 perft(Board* b, int depth);
 //std::string formatMove(Move& m);
 bool parseMove(Board& b, std::string input);
 
@@ -37,36 +35,6 @@ int main() {
     }
 
     return 0;
-}
-
-u64 perft(Board* b, int depth) {
-    u64 nodes = 0;
-
-    if (depth == 0)
-        return 1;
-
-    std::vector<Move> list;
-    b->genMoves(list);
-    for (size_t i = 0; i < list.size(); ++i) {
-        if (b->makeMove(list[i])) {
-            nodes += perft(b, depth - 1);
-            b->undoMove();
-        }
-    }
- 
-    // perft tests
-    /*
-    std::vector<Move> list;
-    b.genMoves(list);
-    for (size_t i = 0; i < list.size(); ++i) {
-        if (b.makeMove(list[i])) {
-            std::cout << formatMove(list[i]) << " " << perft(&b, DEPTH - 1) << std::endl;
-            b.undoMove();
-        }
-    }
-    */
-   
-    return nodes;
 }
 
 bool parseMove(Board& b, std::string input) {
