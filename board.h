@@ -110,6 +110,16 @@ public:
      * Set the game position and state given a fen string
      */
     void setPosition(std::string fen);
+
+    /*
+     * Return the position
+     */
+    int* getPosition();
+
+    /*
+     * Is it white to move
+     */
+    bool getWhiteToMove();
 };
 
 #endif

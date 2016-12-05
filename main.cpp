@@ -9,11 +9,12 @@
 
 #include "board.h"
 #include "move.hpp"
+#include "search.hpp"
 
 typedef unsigned long long u64;
 u64 perft(Board* b, int depth);
-std::string formatMove(Move& m);
-const int DEPTH = 4;
+//std::string formatMove(Move& m);
+bool parseMove(Board& b, std::string input);
 
 /*
  *
@@ -21,22 +22,20 @@ const int DEPTH = 4;
 int main() {
 
     // set board to initial position
-    Board b("r3k2r/Pppp1ppp/1b3nbN/nP6/BBP1P3/q4N2/Pp1P2PP/R2Q1RK1 w kq - 0 1");
+    Board b("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
 
-    // perft tests
-    /*
-    std::vector<Move> list;
-    b.genMoves(list);
-    for (size_t i = 0; i < list.size(); ++i) {
-        if (b.makeMove(list[i])) {
-            std::cout << formatMove(list[i]) << " " << perft(&b, DEPTH - 1) << std::endl;
-            b.undoMove();
+    // main game loop
+    std::string input;
+    while (true) {
+        std::cin >> input;
+        if (parseMove(b, input)) {
+            search(b);
+        }
+        else {
+            std::cerr << "Incorrect input" << std::endl;
         }
     }
-    */
 
-    for (int i = 1; i <= 6; ++i)
-        std::cout << perft(&b, i) << std::endl;
     return 0;
 }
 
@@ -54,10 +53,44 @@ u64 perft(Board* b, int depth) {
             b->undoMove();
         }
     }
-    
+ 
+    // perft tests
+    /*
+    std::vector<Move> list;
+    b.genMoves(list);
+    for (size_t i = 0; i < list.size(); ++i) {
+        if (b.makeMove(list[i])) {
+            std::cout << formatMove(list[i]) << " " << perft(&b, DEPTH - 1) << std::endl;
+            b.undoMove();
+        }
+    }
+    */
+   
     return nodes;
 }
 
+bool parseMove(Board& b, std::string input) {
+
+    unsigned origin = (input[0] - 'a') + 16 * (input[1] - '1');
+    unsigned target = (input[2] - 'a') + 16 * (input[3] - '1');
+
+    std::vector<Move> list;
+    b.genMoves(list);
+    for (size_t i = 0; i < list.size(); ++i) {
+        if (origin == list[i].getOrigin() && target == list[i].getTarget()) {
+            if (b.makeMove(list[i]))
+                return true;
+            else {
+                b.undoMove();   
+                return false;
+            }
+        }
+    }
+
+    return false;
+}
+
+/*
 std::string formatMove(Move& m) {
     int columnStart = m.getOrigin() & 7;
     int columnEnd = m.getTarget() & 7;
@@ -72,3 +105,4 @@ std::string formatMove(Move& m) {
 
     return suh;
 }
+*/

@@ -277,6 +277,20 @@ void Board::setPosition(std::string fen) {
         fullmove = fullmove * 10 + *it++ - '0';
 }
 
+/* 
+ * Get position of board
+ */
+int* Board::getPosition() {
+    return position;
+}
+
+/*
+ * Get if white is to move
+ */
+bool Board::getWhiteToMove() {
+    return whiteToMove;
+}
+
 /*
  * Generate pseudolegal moves for sliding pieces
  */
