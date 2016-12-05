@@ -19,8 +19,10 @@
 int main() {
 
     // set board to initial position
-    Board b("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+    Board b("2r1r3/pp1n1k2/3B1p2/2pp1p1p/2P2P1P/6P1/PP2R1K1/4R3 w - - 1 8");
+    std::cout << negamax(b, 6) << std::endl;
 
+    /*
     // main game loop
     std::string input;
     while (true) {
@@ -32,6 +34,7 @@ int main() {
             std::cerr << "Incorrect input" << std::endl;
         }
     }
+    */
 
     return 0;
 }

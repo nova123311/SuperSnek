@@ -30,10 +30,10 @@ int eval(Board& b) {
             else if (piece == -5 || piece == 5)
                 sum += (piece < 0 ? -9 : 9);
             else if (piece == -6 || piece == 6)
-                sum += (piece < 0 ? -1000 : 1000);
+                sum += (piece < 0 ? -10000 : 10000);
         }
     }
-    return sum;
+    return b.getWhiteToMove() ? sum : -sum;
 }
 
 #endif 
