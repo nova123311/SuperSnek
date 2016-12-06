@@ -19,22 +19,25 @@
 int main() {
 
     // set board to initial position
-    Board b("2r1r3/pp1n1k2/3B1p2/2pp1p1p/2P2P1P/6P1/PP2R1K1/4R3 w - - 1 8");
-    std::cout << negamax(b, 5) << std::endl;
+    Board b("r1bqk2r/ppp1bpp1/4pn1p/3p4/2PP4/2NBP1N1/PP3PPP/R2QK2R b KQkq - 0 1");
 
-    /*
     // main game loop
     std::string input;
     while (true) {
         std::cin >> input;
+
+        // perform user move if legal
         if (parseMove(b, input)) {
-            search(b);
+
+            // engine searches to depth 
+            Move m = search(b, 5);
+            b.makeMove(m);
+            std::cout << formatMove(m) << std::endl;
         }
         else {
             std::cerr << "Incorrect input" << std::endl;
         }
     }
-    */
 
     return 0;
 }

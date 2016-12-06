@@ -37,49 +37,27 @@ int negamax(Board& b, int depth) {
     return max;
 }
 
-Move& search(Board& b) {
-    
-    // generate list of moves
+/*
+ * Search board to specified depth and make move
+ */
+Move search(Board& b, int depth) {
+    Move m;
+
+    int max = INT_MIN;
     std::vector<Move> list;
     b.genMoves(list);
-
-    int min = eval(b), max = eval(b);
-    int minIndex = 0, maxIndex = 0;
     for (size_t i = 0; i < list.size(); ++i) {
         if (b.makeMove(list[i])) {
-            minIndex = maxIndex = i;
-            b.undoMove();
-            break;
-        }
-    }
-
-    for (size_t i = 0; i < list.size(); ++i) {
-        if (b.makeMove(list[i])) {
-            int result = eval(b);
-
-            if (result < min) {
-                min = result;
-                minIndex = i;
-            }
-
-            if (result >= max) {
-                max = result;
-                maxIndex = i;
+            int score = -negamax(b, depth - 1);
+            if (score > max) {
+                max = score;
+                m = list[i];
             }
             b.undoMove();
         }
     }
 
-    if (b.getWhiteToMove()) {
-        std::cout << formatMove(list[maxIndex]) << std::endl;
-        b.makeMove(list[maxIndex]);
-        return list[maxIndex];
-    }
-    else {
-        std::cout << formatMove(list[minIndex]) << std::endl;
-        b.makeMove(list[minIndex]);
-        return list[minIndex];
-    }
+    return m;
 }
 
 #endif

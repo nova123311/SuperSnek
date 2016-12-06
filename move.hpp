@@ -36,6 +36,11 @@ private:
 
 public:
 
+    /*
+     * Default constructor
+     */
+    Move() : move(0) {}
+
     /* 
      * Construct move object with specified origin, target, and flag
      */

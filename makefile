@@ -8,4 +8,4 @@ profile:
 	g++ -std=c++11 -Wall -O2 -pg -o SuperSnek main.cpp board.cpp
 
 clean: SuperSnek
-	rm SuperSnek
+	rm SuperSnek gmon.out profile.txt
