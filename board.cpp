@@ -482,39 +482,94 @@ void Board::genCastle(std::vector<Move>& list, int origin) {
  * Determine if a square is attacked
  */
 bool Board::isAttacked(int square) {
- 
-    // functions to generate pieces
-    void (Board::*genPiece[])(std::vector<Move>&, int){&Board::genPawn,
-            &Board::genKnight, &Board::genBishop, &Board::genRook, 
-            &Board::genQueen, &Board::genKing};
 
-    // iterate through the piece list
-    std::vector<Move> list;
-    whiteToMove = !whiteToMove;
-    for (size_t i = 0; i < pieceList.size(); ++i) {
-        int piece = position[pieceList[i]];
-        if ((whiteToMove && piece > 0) || (!whiteToMove && piece < 0)) {
-            (this->*genPiece[abs(piece) - 1])(list, pieceList[i]);
+    // temporarily place a value corresponding with color on square
+    int piece = position[square];
+    position[square] = whiteToMove ? 1 : -1;
+
+    // is attacked by pawn
+    if (whiteToMove) {
+        for (int i = 1; i < 3; ++i) {
+            int target = square + pawnOffset[i];
+            if (position[target] == -1)
+                if (!(target & 0x88)) {
+                    position[square] = piece;
+                    return true;
+                }
         }
     }
-    whiteToMove = !whiteToMove;
-
-    // check if square attacked
-    for (size_t i = 0; i < pieceList.size(); ++i) {
-        if (whiteToMove && position[pieceList[i]] == -1) {
-            if (pieceList[i] - 0xf == square || pieceList[i] - 0x11 == square)
-                return true;
-        }
-        if (!whiteToMove && position[pieceList[i]] == 1) {
-            if (pieceList[i] + 0xf == square || pieceList[i] + 0x11 == square)
-                return true;
+    else {
+        for (int i = 1; i < 3; ++i) {
+            int target = square - pawnOffset[i];
+            if (position[target] == 1)
+                if (!(target & 0x88)) {
+                    position[square] = piece;
+                    return true;
+                }
         }
     }
-
-    for (size_t i = 0; i < list.size(); ++i) {
-        if (abs(position[list[i].getOrigin()]) != 1 && (int)list[i].getTarget() == square)
-            return true;
+    
+    // is attacked by knight
+    for (int delta : knightOffset) {
+        int target = square + delta;
+        if (position[target] == -2 || position[target] == 2)
+            if ((position[square] ^ position[target]) < 0)
+                if (!(target & 0x88)) {
+                    position[square] = piece;
+                    return true;
+                }
     }
 
+    // is attacked by bishop
+    for (int delta : bishopOffset) {
+        int target = square + delta;
+        while (!(target & 0x88) && position[target] == 0) 
+            target += delta;
+        if (position[target] == -3 || position[target] == 3)
+            if ((position[square] ^ position[target]) < 0)
+                if (!(target & 0x88)) {
+                    position[square] = piece;
+                    return true;
+                }
+    }
+
+    // is attacked by rook
+    for (int delta : rookOffset) {
+        int target = square + delta;
+        while (!(target & 0x88) && position[target] == 0) 
+            target += delta;
+        if (position[target] == -4 || position[target] == 4)
+            if ((position[square] ^ position[target]) < 0)
+                if (!(target & 0x88)) {
+                    position[square] = piece;
+                    return true;
+                }
+    }
+
+    // is attacked by queen
+    for (int delta : queenOffset) {
+        int target = square + delta;
+        while (!(target & 0x88) && position[target] == 0) 
+            target += delta;
+        if (position[target] == -5 || position[target] == 5)
+            if ((position[square] ^ position[target]) < 0)
+                if (!(target & 0x88)) {
+                    position[square] = piece;
+                    return true;
+                }
+    }
+
+    // is attacked by king
+    for (int delta : kingOffset) {
+        int target = square + delta;
+        if (position[target] == -6 || position[target] == 6)
+            if ((position[square] ^ position[target]) < 0)
+                if (!(target & 0x88)) {
+                    position[square] = piece;
+                    return true;
+                }
+    }
+
+    position[square] = piece;
     return false;
 }
