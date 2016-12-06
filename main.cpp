@@ -19,7 +19,7 @@
 int main() {
 
     // set board to initial position
-    Board b("r1bqk2r/ppp1bpp1/4pn1p/3p4/2PP4/2NBP1N1/PP3PPP/R2QK2R b KQkq - 0 1");
+    Board b("r1b3k1/ppp3pp/3p4/2bNp3/4P1P1/2P3PP/PP1q4/R4R1K b - - 0 1");
 
     // main game loop
     std::string input;
@@ -30,7 +30,7 @@ int main() {
         if (parseMove(b, input)) {
 
             // engine searches to depth 
-            Move m = search(b, 5);
+            Move m = search(b, 6);
             b.makeMove(m);
             std::cout << formatMove(m) << std::endl;
         }

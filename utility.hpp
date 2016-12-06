@@ -81,6 +81,19 @@ std::string formatMove(Move& m) {
     move.push_back('a' + columnEnd);
     move.push_back('1' + rowEnd);
 
+    // promotions?
+    if (m.getFlag() >= 8) {
+        int piece = m.getFlag() % 4 + 2;
+        if (piece == 2)
+            move.push_back('n');
+        else if (piece == 3)
+            move.push_back('b');
+        else if (piece == 4)
+            move.push_back('r');
+        else if (piece == 5) 
+            move.push_back('q');
+    }
+
     return move;
 }
 

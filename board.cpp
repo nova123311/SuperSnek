@@ -292,6 +292,13 @@ bool Board::getWhiteToMove() {
 }
 
 /*
+ * Get piece list
+ */
+std::vector<int> Board::getPieceList() {
+    return pieceList;
+}
+
+/*
  * Generate pseudolegal moves for sliding pieces
  */
 void Board::genSlidingPiece(std::vector<Move>& list, int origin,

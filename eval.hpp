@@ -13,27 +13,27 @@
  * Assign a score to the board 
  */
 int eval(Board& b) {
+    
+    // calculate material
     int sum = 0;
     int* position = b.getPosition();
-    for (int row = 0; row < 8; ++row) {
-        for (int column = 0; column < 8; ++column) {
-            int piece = position[row * 16 + column];
-
-            if (piece == -1 || piece == 1)
-                sum += piece;
-            else if (piece == -2 || piece == 2)
-                sum += (piece < 0 ? -3 : 3);
-            else if (piece == -3 || piece == 3)
-                sum += (piece < 0 ? -3 : 3);
-            else if (piece == -4 || piece == 4)
-                sum += (piece < 0 ? -5 : 5);
-            else if (piece == -5 || piece == 5)
-                sum += (piece < 0 ? -9 : 9);
-            else if (piece == -6 || piece == 6)
-                sum += (piece < 0 ? -10000 : 10000);
-        }
+    std::vector<int> pieceList = b.getPieceList();
+    for (int index : pieceList) {
+        int piece = position[index];
+        if (piece == -1 || piece == 1)
+            sum += (piece < 0 ? -100 : 100);
+        else if (piece == -2 || piece == 2)
+            sum += (piece < 0 ? -300 : 300);
+        else if (piece == -3 || piece == 3)
+            sum += (piece < 0 ? -300 : 300);
+        else if (piece == -4 || piece == 4)
+            sum += (piece < 0 ? -500 : 500);
+        else if (piece == -5 || piece == 5)
+            sum += (piece < 0 ? -900 : 900);
+        else if (piece == -6 || piece == 6)
+            sum += (piece < 0 ? -100000 : 100000);
     }
-    return b.getWhiteToMove() ? sum : -sum;
+    return sum;
 }
 
 #endif 

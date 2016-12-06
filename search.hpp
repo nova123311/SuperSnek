@@ -7,34 +7,72 @@
 #ifndef SEARCH_HPP
 #define SEARCH_HPP
 
+#include <algorithm>
 #include <climits>
 #include "board.h"
 #include "eval.hpp"
 #include "utility.hpp"
 
 /*
- * negamax algorithm
+ * alpha beta minimax search
  */
-int negamax(Board& b, int depth) {
+int minimax(Board& b, int depth, int alpha, int beta, bool maxPlayer) {
 
-    // return evaluation of leaf node
+    // evaluate leaf nodes
     if (depth == 0)
         return eval(b);
-    
-    // perform a depth first search
-    int max = INT_MIN;
+
+    // gen moves
     std::vector<Move> list;
     b.genMoves(list);
-    for (size_t i = 0; i < list.size(); ++i) {
-        if (b.makeMove(list[i])) {
-            int score = -negamax(b, depth - 1);
-            if (score > max)
-                max = score;
-            b.undoMove();
+
+    // maximize results
+    if (maxPlayer) {
+
+        // depth first search
+        for (size_t i = 0; i < list.size(); ++i) {
+            if (b.makeMove(list[i])) {
+                
+                // get max of min children
+                int score = minimax(b, depth - 1, alpha, beta, false);
+                alpha = std::max(score, alpha);
+
+                // prune branch if alpha >= beta
+                if (alpha >= beta) {
+                    b.undoMove();
+                    break;
+                }
+        
+                // move back up to parent node
+                b.undoMove();
+            }
         }
+        return alpha;
     }
 
-    return max;
+    // minimize results
+    else {
+
+        // depth first search
+        for (size_t i = 0; i < list.size(); ++i) {
+            if (b.makeMove(list[i])) {
+
+                // get min of max children
+                int score = minimax(b, depth - 1, alpha, beta, true);
+                beta = std::min(score, beta);
+
+                // prune branch if alpha >= beta
+                if (alpha >= beta) {
+                    b.undoMove();
+                    break;
+                }
+
+                // move back up to parent node
+                b.undoMove();
+            }
+        }
+        return beta;
+    }
 }
 
 /*
@@ -42,18 +80,35 @@ int negamax(Board& b, int depth) {
  */
 Move search(Board& b, int depth) {
     Move m;
-
-    int max = INT_MIN;
     std::vector<Move> list;
-    b.genMoves(list);
-    for (size_t i = 0; i < list.size(); ++i) {
-        if (b.makeMove(list[i])) {
-            int score = -negamax(b, depth - 1);
-            if (score > max) {
-                max = score;
-                m = list[i];
+
+    if (b.getWhiteToMove()) {
+        int maxScore = INT_MIN;
+        b.genMoves(list);
+        for (size_t i = 0; i < list.size(); ++i) {
+            if (b.makeMove(list[i])) {
+                int score = minimax(b, depth - 1, INT_MIN, INT_MAX, false);
+                if (score > maxScore) {
+                    maxScore = score;
+                    m = list[i];
+                }
+                b.undoMove();
             }
-            b.undoMove();
+        }
+    }
+
+    else {
+        int minScore = INT_MAX;
+        b.genMoves(list);
+        for (size_t i = 0; i < list.size(); ++i) {
+            if (b.makeMove(list[i])) {
+                int score = minimax(b, depth - 1, INT_MIN, INT_MAX, true);
+                if (score < minScore) {
+                    minScore = score;
+                    m = list[i];
+                }
+                b.undoMove();
+            }
         }
     }
 

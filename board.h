@@ -117,6 +117,11 @@ public:
     int* getPosition();
 
     /*
+     * Get piece list
+     */
+    std::vector<int> getPieceList();
+
+    /*
      * Is it white to move
      */
     bool getWhiteToMove();
