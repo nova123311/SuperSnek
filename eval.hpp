@@ -33,7 +33,13 @@ int eval(Board& b) {
         else if (piece == -6 || piece == 6)
             sum += (piece < 0 ? -100000 : 100000);
     }
-    return sum;
+
+    // calculate mobility
+    std::vector<Move> list;
+    b.genMoves(list);
+    int mobility = b.getWhiteToMove() ? list.size() : -list.size();
+
+    return sum + mobility;
 }
 
 #endif 
