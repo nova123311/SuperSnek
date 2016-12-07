@@ -4,6 +4,7 @@
  * Date: September 16, 2016
  */
 
+#include <algorithm>
 #include <cctype>
 #include <iostream>
 #include "board.h"
@@ -27,15 +28,11 @@ Board::Board(std::string fen) {
 Board::Board(const Board& other) {
      
     // assign data of other to this board structure
-    for (size_t i = 0; i < other.history.size(); ++i)
-        history.push_back(other.history[i]);
-    for (size_t i = 0; i < other.pieceList.size(); ++i)
-        pieceList.push_back(other.pieceList[i]);
-    for (int i = 0; i < 128; ++i)
-        position[i] = other.position[i];
+    history = other.history;
+    pieceList = other.pieceList;
+    std::copy(other.position, other.position + 128, position);
     whiteToMove = other.whiteToMove;
-    for (int i = 0; i < 4; ++i)
-        castle[i] = other.castle[i];
+    std::copy(other.castle, other.castle + 4, castle);
     enpassant = other.enpassant;
     halfmove = other.halfmove;
     fullmove = other.fullmove;
@@ -158,14 +155,10 @@ void Board::undoMove() {
      
     // assign data of other to this board structure
     Board* other = history.back();
-    pieceList.clear();
-    for (size_t i = 0; i < other->pieceList.size(); ++i)
-        pieceList.push_back(other->pieceList[i]);
-    for (int i = 0; i < 128; ++i)
-        position[i] = other->position[i];
+    pieceList = other->pieceList;
+    std::copy(other->position, other->position + 128, position);
     whiteToMove = other->whiteToMove;
-    for (int i = 0; i < 4; ++i)
-        castle[i] = other->castle[i];
+    std::copy(other->castle, other->castle + 4, castle);
     enpassant = other->enpassant;
     halfmove = other->halfmove;
     fullmove = other->fullmove;
