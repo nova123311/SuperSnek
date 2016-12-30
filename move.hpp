@@ -1,8 +1,6 @@
-/*
- * Filename: move.hpp
- * Author: Francis Dinh
- * Date: October 14, 2016
- */
+// Filename: move.hpp
+// Author: Francis Dinh
+// Date: October 14, 2016
 
 #ifndef MOVE_HPP
 #define MOVE_HPP
@@ -28,22 +26,16 @@ const int QUEEN_PROMOTION_CAPTURE = 15;
 class Move {
 private:
 
-    /* 
-     * Moves are internally represented as 16 bit variable
-     * with format (origin, target, flag)
-     */
+    // Moves are internally represented as 16 bit variable
+    // with format (origin, target, flag)
     uint16_t move;
 
 public:
 
-    /*
-     * Default constructor
-     */
+    // Default constructor
     Move() : move(0) {}
 
-    /* 
-     * Construct move object with specified origin, target, and flag
-     */
+    // Construct move object with specified origin, target, and flag
     Move(unsigned origin, unsigned target, unsigned flag) {
         move = 0;
         origin = (origin + (origin & 7)) >> 1; 
@@ -51,25 +43,19 @@ public:
         move |= (origin << 10) | (target << 4) | flag;
     }
 
-    /*
-     * Get origin square
-     */
+    // Get origin square
     unsigned getOrigin() {
         unsigned origin = (move & 0xFC00) >> 10;
         return origin + (origin & ~7);
     }
 
-    /*
-     * Get target square
-     */
+    // Get target square
     unsigned getTarget() {
         unsigned target = (move & 0x3F0) >> 4;
         return target + (target & ~7);
     }
 
-    /*
-     * Get flag
-     */
+    // Get flag
     unsigned getFlag() {
         return move & 0xF;
     }

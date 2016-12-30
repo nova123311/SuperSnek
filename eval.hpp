@@ -1,17 +1,13 @@
-/*
- * Filename: eval.hpp
- * Author: Francis Dinh
- * Date: December 4, 2016
- */
+// Filename: eval.hpp
+// Author: Francis Dinh
+// Date: December 4, 2016
 
 #ifndef EVAL_H
 #define EVAL_H
 
 #include "board.h"
 
-/*
- * Assign a score to the board 
- */
+// Assign a score to the board 
 int eval(Board& b) {
     
     // calculate material

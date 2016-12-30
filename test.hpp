@@ -1,8 +1,6 @@
-/*
- * Filename: test.hpp
- * Author: Francis Dinh
- * Date: December 4, 2016
- */
+// Filename: test.hpp
+// Author: Francis Dinh
+// Date: December 4, 2016
 
 #ifndef TEST_HPP
 #define TEST_HPP
@@ -12,9 +10,7 @@
 #include "board.h"
 #include "utility.hpp"
 
-/*
- * Perform a perft on the board at depth
- */
+// Perform a perft on the board at depth
 uint64_t perft(Board* b, int depth) {
     uint64_t nodes = 0;
 
@@ -32,9 +28,7 @@ uint64_t perft(Board* b, int depth) {
     return nodes;
 }
 
-/*
- * Perform perft of depth d - 1 on each move generated
- */
+// Perform perft of depth d - 1 on each move generated
 void divide(Board* b, int depth) {
     std::vector<Move> list;
     b->genMoves(list);
@@ -47,9 +41,7 @@ void divide(Board* b, int depth) {
     }
 }
 
-/*
- * Perform perft test on set positions and expected values
- */
+// Perform perft test on set positions and expected values
 void testSuite() {
 
     /* TESTING */

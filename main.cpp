@@ -1,8 +1,6 @@
-/*
- * Filename: main.cpp
- * Author: Francis Dinh
- * Date: September 16, 2016
- */
+// Filename: main.cpp
+// Author: Francis Dinh
+// Date: September 16, 2016
 
 #include <iostream>
 #include <string>
@@ -13,9 +11,6 @@
 #include "utility.hpp"
 #include "test.hpp"
 
-/*
- *
- */
 int main() {
 
     // set board to initial position
@@ -30,7 +25,7 @@ int main() {
         if (parseMove(b, input)) {
 
             // engine searches to depth 
-            Move m = search(b, 4);
+            Move m = search(b, 2);
             b.makeMove(m);
             std::cout << formatMove(m) << std::endl;
         }

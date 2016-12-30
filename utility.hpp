@@ -1,17 +1,13 @@
-/*
- * Filename: utility.hpp
- * Author: Francis Dinh
- * Date: December 4, 2016
- */
+// Filename: utility.hpp
+// Author: Francis Dinh
+// Date: December 4, 2016
 
 #ifndef UTILITY_HPP
 #define UTILITY_HPP
 
 #include "board.h"
 
-/*
- * Parse an input and perform move on board
- */
+// Parse an input and perform move on board
 bool parseMove(Board& b, std::string input) {
 
     // get origin and target squares
@@ -66,9 +62,7 @@ bool parseMove(Board& b, std::string input) {
     return false;
 }
 
-/*
- * Format a move as a string 
- */
+// Format a move as a string 
 std::string formatMove(Move& m) {
     int columnStart = m.getOrigin() & 7;
     int columnEnd = m.getTarget() & 7;

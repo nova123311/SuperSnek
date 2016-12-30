@@ -1,17 +1,12 @@
-/*
- * Filename: board.cpp
- * Author: Francis Dinh
- * Date: September 16, 2016
- */
+// Filename: board.cpp
+// Author: Francis Dinh
+// Date: September 16, 2016
 
 #include <algorithm>
 #include <cctype>
 #include <iostream>
 #include "board.h"
 
-/*
- * Constructor
- */
 Board::Board(std::string fen) {
     setPosition(fen);
 
@@ -22,9 +17,6 @@ Board::Board(std::string fen) {
                 pieceList.push_back(row * 16 + column);
 }
 
-/*
- * Copy constructor
- */
 Board::Board(const Board& other) {
      
     // assign data of other to this board structure
@@ -38,9 +30,6 @@ Board::Board(const Board& other) {
     fullmove = other.fullmove;
 }
 
-/*
- * Generate pseudolegal moves
- */
 void Board::genMoves(std::vector<Move>& list) {
 
     // functions to generate pieces
@@ -60,9 +49,6 @@ void Board::genMoves(std::vector<Move>& list) {
     }
 }
 
-/*
- * Make a move on the board
- */
 bool Board::makeMove(Move& m) {
 
     // add current board to history
@@ -148,9 +134,6 @@ bool Board::makeMove(Move& m) {
     return true;
 }
 
-/*
- * Revert the board to previous position in history
- */
 void Board::undoMove() {
      
     // assign data of other to this board structure
@@ -168,9 +151,6 @@ void Board::undoMove() {
     delete other;
 }
 
-/*
- * Print board to console
- */
 void Board::print() {
 
     // print top border of board
@@ -193,9 +173,6 @@ void Board::print() {
     }
 }
 
-/*
- * Set game position/status
- */
 void Board::setPosition(std::string fen) {
     std::string::iterator it = fen.begin();
 
@@ -270,30 +247,18 @@ void Board::setPosition(std::string fen) {
         fullmove = fullmove * 10 + *it++ - '0';
 }
 
-/* 
- * Get position of board
- */
 int* Board::getPosition() {
     return position;
 }
 
-/*
- * Get if white is to move
- */
 bool Board::getWhiteToMove() {
     return whiteToMove;
 }
 
-/*
- * Get piece list
- */
 std::vector<int> Board::getPieceList() {
     return pieceList;
 }
 
-/*
- * Generate pseudolegal moves for sliding pieces
- */
 void Board::genSlidingPiece(std::vector<Move>& list, int origin,
         std::vector<int>& delta) {
 
@@ -319,9 +284,6 @@ void Board::genSlidingPiece(std::vector<Move>& list, int origin,
     }
 }
 
-/*
- * Generate pseudolegal moves for nonsliding pieces
- */
 void Board::genNonSlidingPiece(std::vector<Move>& list, int origin,
         std::vector<int>& delta) {
 
@@ -343,9 +305,6 @@ void Board::genNonSlidingPiece(std::vector<Move>& list, int origin,
     }
 }
 
-/*
- * Generate pseudolegal moves for pawns
- */
 std::vector<int> pawnOffset{0x10, 0xf, 0x11};
 void Board::genPawn(std::vector<Move>& list, int origin) {
 
@@ -405,49 +364,31 @@ void Board::genPawn(std::vector<Move>& list, int origin) {
     }
 }
 
-/*
- * Generate pseudolegal moves for knights
- */
 std::vector<int> knightOffset{0xe, 0x1f, 0x21, 0x12, -0xe, -0x1f, -0x21, -0x12};
 void Board::genKnight(std::vector<Move>& list, int origin) {
     genNonSlidingPiece(list, origin, knightOffset);
 }
 
-/*
- * Generate pseudolegal moves for bishops
- */
 std::vector<int> bishopOffset{0xf, 0x11, -0xf, -0x11};
 void Board::genBishop(std::vector<Move>& list, int origin) {
     genSlidingPiece(list, origin, bishopOffset);
 }
 
-/*
- * Generate pseudolegal moves for rooks
- */
 std::vector<int> rookOffset{0x10, 0x1, -0x10, -0x1};
 void Board::genRook(std::vector<Move>& list, int origin) {
     genSlidingPiece(list, origin, rookOffset);
 }
 
-/*
- * Generate pseudolegal moves for queens
- */
 std::vector<int> queenOffset{0xf, 0x10, 0x11, 0x1, -0xf, -0x10, -0x11, -0x1};
 void Board::genQueen(std::vector<Move>& list, int origin) {
     genSlidingPiece(list, origin, queenOffset);
 }
 
-/*
- * Generate pseudolegal moves for kings
- */
 std::vector<int> kingOffset{0xf, 0x10, 0x11, 0x1, -0xf, -0x10, -0x11, -0x1};
 void Board::genKing(std::vector<Move>& list, int origin) {
     genNonSlidingPiece(list, origin, kingOffset);
 }
 
-/*
- * Generate castling moves
- */
 void Board::genCastle(std::vector<Move>& list, int origin) {
 
     // check that king is not in check
@@ -478,9 +419,6 @@ void Board::genCastle(std::vector<Move>& list, int origin) {
     }
 }
 
-/*
- * Determine if a square is attacked
- */
 bool Board::isAttacked(int square) {
 
     // temporarily place a value corresponding with color on square

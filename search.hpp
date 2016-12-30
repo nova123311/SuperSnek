@@ -1,8 +1,6 @@
-/*
- * Filename: search.hpp
- * Author: Francis Dinh
- * Date: December 4, 2016
- */
+// Filename: search.hpp
+// Author: Francis Dinh
+// Date: December 4, 2016
 
 #ifndef SEARCH_HPP
 #define SEARCH_HPP
@@ -13,9 +11,7 @@
 #include "eval.hpp"
 #include "utility.hpp"
 
-/*
- * alpha beta minimax search
- */
+// alpha beta minimax search
 int minimax(Board& b, int depth, int alpha, int beta, bool maxPlayer) {
 
     // evaluate leaf nodes
@@ -75,9 +71,7 @@ int minimax(Board& b, int depth, int alpha, int beta, bool maxPlayer) {
     }
 }
 
-/*
- * Search board to specified depth and make move
- */
+// Search board to specified depth and make move
 Move search(Board& b, int depth) {
     Move m;
     std::vector<Move> list;
