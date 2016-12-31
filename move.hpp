@@ -26,9 +26,8 @@ const int QUEEN_PROMOTION_CAPTURE = 15;
 class Move {
 private:
 
-    // Moves are internally represented as 16 bit variable
-    // with format (origin, target, flag)
-    uint16_t move;
+    // move internally represented as at least 32 bit
+    uint_fast32_t move;
 
 public:
 
@@ -36,28 +35,23 @@ public:
     Move() : move(0) {}
 
     // Construct move object with specified origin, target, and flag
-    Move(unsigned origin, unsigned target, unsigned flag) {
-        move = 0;
-        origin = (origin + (origin & 7)) >> 1; 
-        target = (target + (target & 7)) >> 1;
-        move |= (origin << 10) | (target << 4) | flag;
+    Move(unsigned origin, unsigned target, unsigned flag) : move(0) {
+        move |= (origin << 16) | (target << 8) | flag;
     }
 
     // Get origin square
     unsigned getOrigin() {
-        unsigned origin = (move & 0xFC00) >> 10;
-        return origin + (origin & ~7);
+        return (move & 0xff0000) >> 16;
     }
 
     // Get target square
     unsigned getTarget() {
-        unsigned target = (move & 0x3F0) >> 4;
-        return target + (target & ~7);
+        return (move & 0xff00) >> 8;
     }
 
     // Get flag
     unsigned getFlag() {
-        return move & 0xF;
+        return move & 0xff;
     }
 };
 
