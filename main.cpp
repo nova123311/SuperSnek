@@ -13,6 +13,9 @@
 
 int main() {
 
+    // run tests
+    testSuite();
+
     // set board to initial position
     Board b("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
 

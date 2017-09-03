@@ -6,6 +6,7 @@
 #include <cctype>
 #include <iostream>
 #include "board.h"
+#include "movegen.h"
 
 Board::Board(std::string fen) {
     setPosition(fen);
@@ -30,23 +31,13 @@ Board::Board(const Board& other) {
     fullmove = other.fullmove;
 }
 
+void Board::operator=(const Board& other) {
+    *this = other;
+}
+
 void Board::genMoves(std::vector<Move>& list) {
-
-    // functions to generate pieces
-    void (Board::*genPiece[])(std::vector<Move>&, int){&Board::genPawn,
-            &Board::genKnight, &Board::genBishop, &Board::genRook, 
-            &Board::genQueen, &Board::genKing};
-
-    // iterate through the piece list
-    for (size_t i = 0; i < pieceList.size(); ++i) {
-        int piece = position[pieceList[i]];
-        if ((whiteToMove && piece > 0) || (!whiteToMove && piece < 0)) 
-            (this->*genPiece[abs(piece) - 1])(list, pieceList[i]);
-
-        // castling
-        if ((whiteToMove && piece == 6) || (!whiteToMove && piece == -6))
-            genCastle(list, pieceList[i]);
-    }
+    MoveGenerator generator(*this);
+    generator.genMoves(list);
 }
 
 bool Board::makeMove(Move& m) {
@@ -259,164 +250,12 @@ std::vector<int> Board::getPieceList() {
     return pieceList;
 }
 
-void Board::genSlidingPiece(std::vector<Move>& list, int origin,
-        std::vector<int>& delta) {
-
-    // use each offset
-    for (int offset : delta) {
-        int target = origin + offset;
-
-        // add move only if target square is on board and empty
-        while (!(target & 0x88) && position[target] == 0)  {
-            Move m(origin, target, QUIET_MOVE);
-            list.push_back(m);
-
-            // update target
-            target += offset;
-        }
-
-        // stop sliding once a piece is encountered
-        if (!(target & 0x88) && 
-                (position[origin] ^ position[target]) < 0) {
-            Move m(origin, target, CAPTURE);
-            list.push_back(m);
-        }
-    }
+bool Board::getCastle(CastleType castleType) {
+    return castle[castleType];
 }
 
-void Board::genNonSlidingPiece(std::vector<Move>& list, int origin,
-        std::vector<int>& delta) {
-
-    // use each offset
-    for (int offset : delta) {
-        int target = origin + offset;
-        
-        // add move only if target square is on board and valid move
-        if (!(target & 0x88)) {
-            if (position[target] == 0) {
-                Move m(origin, target, QUIET_MOVE);
-                list.push_back(m);
-            }
-            else if ((position[origin] ^ position[target]) < 0) {
-                Move m(origin, target, CAPTURE);
-                list.push_back(m);
-            }
-        }
-    }
-}
-
-std::vector<int> pawnOffset{0x10, 0xf, 0x11};
-void Board::genPawn(std::vector<Move>& list, int origin) {
-
-    // multiply offsets by modifier depending on player to move
-    int modifier = whiteToMove ? 1 : -1;
-
-    // single pawn push
-    int target = origin + modifier * pawnOffset[0];
-    if (position[target] == 0) {
-
-        // promotions
-        if ((target >= 0x70 && target <= 0x77) || 
-                (target >= 0x0 && target <= 0x7)) 
-            for (int i = 8; i <= 11; ++i) {
-                Move m(origin, target, i);
-                list.push_back(m);
-            }
-        else {
-            Move m(origin, target, QUIET_MOVE);
-            list.push_back(m);
-        }
-
-        // double pawn push
-        target += (modifier * pawnOffset[0]);
-        if (((whiteToMove && origin >= 0x10 && origin <= 0x17) ||
-                (!whiteToMove && origin >= 0x60 && origin <= 0x67)) 
-                && position[target] == 0) {
-            Move m(origin, target, DOUBLE_PAWN_PUSH);
-            list.push_back(m);
-        }
-    }
-    
-    // pawn captures
-    for (int i = 1; i < 3; ++i) {
-        target = origin + modifier * pawnOffset[i];
-        if ((position[target] != 0) && !(target & 0x88) && 
-                (position[origin] ^ position[target]) < 0) {
-        
-            // promotions
-            if ((target >= 0x70 && target <= 0x77) || 
-                    (target >= 0x0 && target <= 0x7))
-                for (int i = 12; i <= 15; ++i) {
-                    Move m(origin, target, i);
-                    list.push_back(m);
-                }
-            else {
-                Move m(origin, target, CAPTURE);
-                list.push_back(m);
-            }
-        }
-
-        // enpassant
-        if ((enpassant == target) && (position[target] == 0)) {
-            Move m(origin, target, EP_CAPTURE);
-            list.push_back(m);
-        }
-    }
-}
-
-std::vector<int> knightOffset{0xe, 0x1f, 0x21, 0x12, -0xe, -0x1f, -0x21, -0x12};
-void Board::genKnight(std::vector<Move>& list, int origin) {
-    genNonSlidingPiece(list, origin, knightOffset);
-}
-
-std::vector<int> bishopOffset{0xf, 0x11, -0xf, -0x11};
-void Board::genBishop(std::vector<Move>& list, int origin) {
-    genSlidingPiece(list, origin, bishopOffset);
-}
-
-std::vector<int> rookOffset{0x10, 0x1, -0x10, -0x1};
-void Board::genRook(std::vector<Move>& list, int origin) {
-    genSlidingPiece(list, origin, rookOffset);
-}
-
-std::vector<int> queenOffset{0xf, 0x10, 0x11, 0x1, -0xf, -0x10, -0x11, -0x1};
-void Board::genQueen(std::vector<Move>& list, int origin) {
-    genSlidingPiece(list, origin, queenOffset);
-}
-
-std::vector<int> kingOffset{0xf, 0x10, 0x11, 0x1, -0xf, -0x10, -0x11, -0x1};
-void Board::genKing(std::vector<Move>& list, int origin) {
-    genNonSlidingPiece(list, origin, kingOffset);
-}
-
-void Board::genCastle(std::vector<Move>& list, int origin) {
-
-    // check that king is not in check
-    if (isAttacked(origin))
-        return;
-
-    // kingisde castling
-    if (!isAttacked(origin + 0x1) && !isAttacked(origin + 0x2)) {
-        if (position[origin + 0x1] == 0 && position[origin + 0x2] == 0) {
-            if ((whiteToMove && castle[WHITE_KINGSIDE]) ||
-                    (!whiteToMove && castle[BLACK_KINGSIDE])) {
-                Move m(origin, origin + 0x2, KING_CASTLE);
-                list.push_back(m);
-            }
-        }
-    }
-
-    // queenside castling
-    if (!isAttacked(origin - 0x1) && !isAttacked(origin - 0x2)) {
-        if (position[origin - 0x1] == 0 && position[origin - 0x2] == 0 &&
-                position[origin - 0x3] == 0) {
-            if ((whiteToMove && castle[WHITE_QUEENSIDE]) ||
-                    (!whiteToMove && castle[BLACK_QUEENSIDE])) {
-                Move m(origin, origin - 0x2, QUEEN_CASTLE);
-                list.push_back(m);
-            }
-        }
-    }
+int Board::getEnpassant() {
+    return enpassant;
 }
 
 bool Board::isAttacked(int square) {

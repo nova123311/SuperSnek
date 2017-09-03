@@ -10,15 +10,23 @@
 #include "move.hpp"
 
 // castling indexes
-const int WHITE_KINGSIDE = 0;   
-const int WHITE_QUEENSIDE = 1;  
-const int BLACK_KINGSIDE = 2;   
-const int BLACK_QUEENSIDE = 3;  
+enum CastleType {
+    WHITE_KINGSIDE,
+    WHITE_QUEENSIDE,
+    BLACK_KINGSIDE,
+    BLACK_QUEENSIDE
+};
 
 const int NO_ENPASSANT = 1000;  // 1000 (off board) to represent no en passant
 
 class Board {
 private:
+    std::vector<int> pawnOffset{0x10, 0xf, 0x11};
+    std::vector<int> knightOffset{0xe, 0x1f, 0x21, 0x12, -0xe, -0x1f, -0x21, -0x12};
+    std::vector<int> bishopOffset{0xf, 0x11, -0xf, -0x11};
+    std::vector<int> rookOffset{0x10, 0x1, -0x10, -0x1};
+    std::vector<int> queenOffset{0xf, 0x10, 0x11, 0x1, -0xf, -0x10, -0x11, -0x1};
+    std::vector<int> kingOffset{0xf, 0x10, 0x11, 0x1, -0xf, -0x10, -0x11, -0x1};
 
     // History of positions prior to current
     std::vector<Board*> history;
@@ -35,26 +43,6 @@ private:
     int enpassant;
     int halfmove;
     int fullmove;
-
-    // Generate sliding piece (bishop, rook, queen) moves
-    void genSlidingPiece(std::vector<Move>& list, int origin,  
-            std::vector<int>& delta);
-
-    // Generate non sliding piece (knight, king) moves
-    void genNonSlidingPiece(std::vector<Move>& list, int origin,
-            std::vector<int>& delta);
-    
-    // Generate pseudolegal moves for the pieces
-    void genPawn(std::vector<Move>& list, int origin);
-    void genKnight(std::vector<Move>& list, int origin);
-    void genBishop(std::vector<Move>& list, int origin);
-    void genRook(std::vector<Move>& list, int origin);
-    void genQueen(std::vector<Move>& list, int origin);
-    void genKing(std::vector<Move>& list, int origin);
-    void genCastle(std::vector<Move>& list, int origin);
-
-    // Determine if a square is being attacked
-    bool isAttacked(int square);
 
 public:
     
@@ -88,6 +76,15 @@ public:
 
     // Is it white to move
     bool getWhiteToMove();
+
+    // Determine whether a certain castling type is possible
+    bool getCastle(CastleType castleType);
+
+    // Get enpassant target square if any and is NO_ENPASSANT if not
+    int getEnpassant();
+
+    // Determine if a square is being attacked
+    bool isAttacked(int square);
 };
 
 #endif

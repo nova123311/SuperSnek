@@ -8,20 +8,22 @@
 #include <cstdint>
 
 // constants for flags
-const int QUIET_MOVE = 0;
-const int DOUBLE_PAWN_PUSH = 1;
-const int KING_CASTLE = 2;
-const int QUEEN_CASTLE = 3;
-const int CAPTURE = 4;
-const int EP_CAPTURE = 5;
-const int KNIGHT_PROMOTION = 8;
-const int BISHOP_PROMOTION = 9;
-const int ROOK_PROMOTION = 10;
-const int QUEEN_PROMOTION = 11;
-const int KNIGHT_PROMOTION_CAPTURE = 12;
-const int BISHOP_PROMOTION_CAPTURE = 13;
-const int ROOK_PROMOTION_CAPTURE = 14;
-const int QUEEN_PROMOTION_CAPTURE = 15;
+enum FlagType {
+    QUIET_MOVE = 0,
+    DOUBLE_PAWN_PUSH = 1,
+    KING_CASTLE = 2,
+    QUEEN_CASTLE = 3,
+    CAPTURE = 4,
+    EP_CAPTURE = 5,
+    KNIGHT_PROMOTION = 8,
+    BISHOP_PROMOTION = 9,
+    ROOK_PROMOTION = 10,
+    QUEEN_PROMOTION = 11,
+    KNIGHT_PROMOTION_CAPTURE = 12,
+    BISHOP_PROMOTION_CAPTURE = 13,
+    ROOK_PROMOTION_CAPTURE = 14,
+    QUEEN_PROMOTION_CAPTURE = 15
+};
 
 class Move {
 private:
